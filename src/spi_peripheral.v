@@ -4,7 +4,7 @@ module spi_peripheral(
    input wire nCS, // chip select (active low = allow the chip to do something)
    input wire SCLK, //serial clock
    
-   input wire reset,
+   input wire rst_n,
    
    input wire clk, //clock for the posedge
 
@@ -59,8 +59,8 @@ reg [4:0] bit_count;
 reg [15:0] shift_reg;
 reg transaction_ready;
 
-always@(posedge clk or negedge reset)begin
-    if(!reset)begin
+always@(posedge clk or negedge rst_n)begin
+    if(!rst_n)begin
         bit_count <= 4'b0;
         shift_reg <= 8'b0;  
         transaction_ready <= 1'b0;
@@ -83,15 +83,16 @@ always@(posedge clk or negedge reset)begin
 end
 
 //shifting the bits into the right address
-always@(posedge clk or negedge reset)begin
-    if(!reset)begin
+always@(posedge clk or negedge rst_n)begin
+    if(!rst_n)begin
         en_reg_out_15_8 <= 8'h0;
         en_reg_out_7_0 <= 8'h0;
         en_reg_pwm_15_8 <= 8'h0;
         en_reg_pwm_7_0 <= 8'h0;
         pwm_duty_cycle <= 8'h0;
     end
-    else if(transaction_ready  && shift_reg[15] == 1'b1 && rising_edge)begin 
+    else begin
+        if(transaction_ready  && shift_reg[15] == 1'b1 && rising_edge)begin 
         case(shift_reg[14:8])
             7'h0: en_reg_out_7_0 <= shift_reg[7:0];
             7'h1: en_reg_out_15_8 <= shift_reg[7:0];
