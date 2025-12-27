@@ -58,7 +58,7 @@ end
 reg [4:0] bit_count;
 reg [15:0] shift_reg;
 
-always@(posedge clk)begin
+always@(posedge clk or negedge reset)begin
     if(!reset)begin
         bit_count <= 0;
         shift_reg <= 0; 
