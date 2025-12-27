@@ -79,6 +79,7 @@ always@(posedge clk or negedge rst_n)begin
         end
         if(bit_count == 15)begin
             transaction_ready <= 1'b1;
+        end
     end
 end
 
