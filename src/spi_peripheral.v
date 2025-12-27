@@ -4,9 +4,9 @@ module spi_peripheral(
    input wire nCS,// chip select (active low = allow the chip to do something)
    input wire SCLK, //serial clock
    
-   input wire reset;
+   input wire reset,
    
-   input wire clk;//clock for the posedge
+   input wire clk,//clock for the posedge
 
    //SPI register Map
    output reg[7:0] en_reg_out_7_0,//reset value 0x00 (enable outputs)
@@ -74,8 +74,8 @@ always@(posedge clk)begin
 end
 
 //shifting the bits into the right address
-   always@(posedge clk or negedge reset)begin
-      if(!reset)begin
+always@(posedge clk or negedge reset)begin
+    if(!reset)begin
         en_reg_out_15_8 <= 0'h0;
         en_reg_out_7_0 <= 0'h0;
         en_reg_pwm_15_8 <= 0'h0;
@@ -93,6 +93,5 @@ end
         endcase
     end  
 end
-
 
 
