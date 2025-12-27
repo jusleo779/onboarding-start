@@ -22,6 +22,11 @@ module tt_um_uwasic_onboarding_Justin_Leong(
     wire[7:0] en_reg_pwm_7_0;
     wire[7:0] en_reg_pwm_15_8;
     wire[7:0] pwm_duty_cycle;
+    assign en_reg_out_7_0 = 0;
+    assign en_reg_out_15_8 = 0;
+    assign en_reg_pwm_7_0 = 0;
+    assign en_reg_pwm_15_8 = 0;
+    assign pwm_duty_cycle = 0;
    pwm_peripheral pwm_peripheral_inst (
     .clk(clk),
     .rst_n(rst_n),
