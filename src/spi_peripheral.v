@@ -74,8 +74,8 @@ always@(posedge clk)begin
 end
 
 //shifting the bits into the right address
-always@(posedge clk or posedge reset)begin
-    if(reset)begin
+   always@(posedge clk or negedge reset)begin
+      if(!reset)begin
         en_reg_out_15_8 <= 0'h0;
         en_reg_out_7_0 <= 0'h0;
         en_reg_pwm_15_8 <= 0'h0;
@@ -93,5 +93,6 @@ always@(posedge clk or posedge reset)begin
         endcase
     end  
 end
+
 
 
