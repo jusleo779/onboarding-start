@@ -1,106 +1,56 @@
-module spi_peripheral(
-   //SPI interface
-   input wire COPI,  //controller output peripheral in (data)
-   input wire nCS, // chip select (active low = allow the chip to do something)
-   input wire SCLK, //serial clock
-   
-   input wire reset,
-   
-   input wire clk, //clock for the posedge
+/*
+ * Copyright (c) 2024 Your Name
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-   //SPI register Map
-   output reg[7:0] en_reg_out_7_0, //reset value 0x00 (enable outputs)
-   output reg[7:0] en_reg_out_15_8, //reset value 0x00 (enable outputs)
-   output reg[7:0] en_reg_pwm_7_0, //reset value 0x00(enables PWM)
-   output reg[7:0] en_reg_pwm_15_8, //reset value 0x00 (enables PWM)
-   output reg[7:0] pwm_duty_cycle  //reset value 0x00 (PWM duty cycle)
+`default_nettype none
+
+module tt_um_uwasic_onboarding_Justin_Leong(
+    input  wire [7:0] ui_in,    // Dedicated inputs
+    output wire [7:0] uo_out,   // Dedicated outputs
+    input  wire [7:0] uio_in,   // IOs: Input path
+    output wire [7:0] uio_out,  // IOs: Output path
+    output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
+    input  wire       ena,      // always 1 when the design is powered, so you can ignore it
+    input  wire       clk,      // clock
+    input  wire       rst_n     // reset_n - low to reset
 );
+    assign uio_oe = 8'hFF;
+    wire[7:0] en_reg_out_7_0;
+    wire[7:0] en_reg_out_15_8;
+    wire[7:0] en_reg_pwm_7_0;
+    wire[7:0] en_reg_pwm_15_8;
+    wire[7:0] pwm_duty_cycle;
 
-//synchronization
+    spi_peripheral spi_peripheral_inst(
+      .COPI(ui_in[1]),
+      .nCS(ui_in[2]),
+      .SCLK(ui_in[0]),
+      .reset(rst_n),
+      .clk(clk),
+      .en_reg_out_7_0(en_reg_out_7_0), 
+      .en_reg_out_15_8(en_reg_out_15_8), 
+      .en_reg_pwm_7_0(en_reg_pwm_7_0), 
+      .en_reg_pwm_15_8(en_reg_pwm_15_8), 
+      .pwm_duty_cycle(pwm_duty_cycle)
+    );
 
-//sync 1
-reg sync_COPI;
-reg sync_nCS;
-reg sync_SCLK;
+    pwm_peripheral pwm_peripheral_inst(
+        .clk(clk),
+        .rst_n(rst_n),
+        .en_reg_out_7_0(en_reg_out_7_0),
+        .en_reg_out_15_8(en_reg_out_15_8),
+        .en_reg_pwm_7_0(en_reg_pwm_7_0),
+        .en_reg_pwm_15_8(en_reg_pwm_15_8),
+        .pwm_duty_cycle(pwm_duty_cycle),
+        .out({uio_out, uo_out})
+);
+ 
+  // All output pins must be assigned. If not used, assign to 0.
+  // Example: ou_out is the sum of ui_in and uio_in
+  
 
-//sync 2
-reg synced_COPI;
-reg synced_nCS;
-reg synced_SCLK;
-
-
-always@(posedge clk)begin 
-    //syncing SCLK
-    sync_SCLK <= SCLK;
-    synced_SCLK <= sync_SCLK;
-
-    //syncing COPI
-    sync_COPI <= COPI;
-    synced_COPI <= sync_COPI;
-
-    //syncing nCS
-    sync_nCS <= nCS;
-    synced_nCS <= sync_nCS;
-end
-
-wire sclk_sync = synced_SCLK;
-wire copi_sync = synced_COPI;
-wire nCS_sync  = synced_nCS;
-
-//edge detection logic
-
-reg prev;
-wire rising_edge = ~prev & sclk_sync;
-always @(posedge clk)begin
-    prev <= sclk_sync;
-end
-
-reg [4:0] bit_count;
-reg [15:0] shift_reg;
-reg transaction_ready;
-
-always@(posedge clk or negedge reset)begin
-    if(!reset)begin
-        bit_count <= 4'b0;
-        shift_reg <= 8'b0;  
-        transaction_ready <= 1'b0;
-    end
-    //when chip is not selected anymore then reset everything
-    else if(nCS_sync)begin 
-        bit_count <= 4'b0;
-        shift_reg <= 8'b0;  
-        transaction_ready <= 1'b0;
-    end else begin
-
-        //shifts the bits to the end
-        if(rising_edge)begin
-            shift_reg <= {shift_reg[14:0], copi_sync};
-            bit_count <= bit_count + 1;
-        end
-        if(bit_count == 15)begin
-            transaction_ready <= 1'b1;
-    end
-end
-
-//shifting the bits into the right address
-always@(posedge clk or negedge reset)begin
-    if(!reset)begin
-        en_reg_out_15_8 <= 8'h0;
-        en_reg_out_7_0 <= 8'h0;
-        en_reg_pwm_15_8 <= 8'h0;
-        en_reg_pwm_7_0 <= 8'h0;
-        pwm_duty_cycle <= 8'h0;
-    end
-    else if(transaction_ready  && shift_reg[15] == 1'b1 && rising_edge)begin 
-        case(shift_reg[14:8])
-            7'h0: en_reg_out_7_0 <= shift_reg[7:0];
-            7'h1: en_reg_out_15_8 <= shift_reg[7:0];
-            7'h2: en_reg_pwm_7_0 <= shift_reg[7:0];
-            7'h3: en_reg_pwm_15_8 <= shift_reg[7:0];
-            7'h4: pwm_duty_cycle <= shift_reg[7:0];
-            default: ;//empty if there is no correct addresses
-        endcase
-    end  
-end
+  // List all unused inputs to prevent warnings
+  wire _unused = &{ena, ui_in[7:3], uio_in, 1'b0};
 
 endmodule
