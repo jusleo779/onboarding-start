@@ -101,7 +101,7 @@ always@(posedge clk or negedge rst_n)begin
             7'h4: pwm_duty_cycle <= shift_reg[7:0];
             default: ;//empty if there is no correct addresses
         endcase
-    end  
+        end  
+    end
 end
-
 endmodule
