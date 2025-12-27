@@ -7,7 +7,7 @@
 
 module tt_um_uwasic_onboarding_Justin_Leong(
    
-    assign uio_oe =8'hFF
+    assign uio_oe =8'hFF;
         
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
