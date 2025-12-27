@@ -3,8 +3,6 @@ module spi_peripheral(
    input wire COPI, //controller output peripheral in (data)
    input wire nCS,// chip select (active low = allow the chip to do something)
    input wire SCLK, //serial clock
-   input wire[2:0]u_in, //data
-   
    input wire reset;
    
    input wire clk;//clock for the posedge
@@ -32,15 +30,15 @@ reg synced_SCLK;
 
 always@(posedge clk)begin 
     //syncing SLCK
-    sync_SCLK <= u_in[0];
+    sync_SCLK <= SLCK;
     synced_SCLK <= sync_SCLK;
 
     //syncing COPI
-    sync_COPI <= u_in[1];
+    sync_COPI <= COPI;
     synced_COPI <= sync_COPI;
 
     //synching nCS
-    sync_nCS <= u_in[2];
+    sync_nCS <= nCS;
     synced_nCS <= sync_nCS;
 end
 
@@ -94,5 +92,6 @@ always@(posedge clk or posedge reset)begin
         endcase
     end  
 end
+
 
 
