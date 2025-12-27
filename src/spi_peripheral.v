@@ -57,16 +57,19 @@ end
 
 reg [4:0] bit_count;
 reg [15:0] shift_reg;
+reg transaction_ready;
 
 always@(posedge clk or negedge reset)begin
     if(!reset)begin
-        bit_count <= 0;
-        shift_reg <= 0; 
+        bit_count <= 4'b0;
+        shift_reg <= 8'b0;  
+        transaction_ready <= 1'b0;
     end
     //when chip is not selected anymore then reset everything
     else if(nCS_sync)begin 
-        bit_count <= 0;
-        shift_reg <= 0;  
+        bit_count <= 4'b0;
+        shift_reg <= 8'b0;  
+        transaction_ready <= 1'b0;
     end else begin
 
         //shifts the bits to the end
@@ -74,6 +77,8 @@ always@(posedge clk or negedge reset)begin
             shift_reg <= {shift_reg[14:0], copi_sync};
             bit_count <= bit_count + 1;
         end
+        if(bit_count == 15)begin
+            transaction_ready <= 1'b1;
     end
 end
 
@@ -86,7 +91,7 @@ always@(posedge clk or negedge reset)begin
         en_reg_pwm_7_0 <= 8'h0;
         pwm_duty_cycle <= 8'h0;
     end
-    else if(bit_count == 15 && shift_reg[15] == 1'b1 && rising_edge)begin 
+    else if(transaction_ready  && shift_reg[15] == 1'b1 && rising_edge)begin 
         case(shift_reg[14:8])
             7'h0: en_reg_out_7_0 <= shift_reg[7:0];
             7'h1: en_reg_out_15_8 <= shift_reg[7:0];
