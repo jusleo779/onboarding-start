@@ -35,7 +35,7 @@ module tt_um_uwasic_onboarding_Justin_Leong(
    
  
   // All output pins must be assigned. If not used, assign to 0. 
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
+  // Example: ou_out is the sum of ui_in and uio_in
  
 
   // List all unused inputs to prevent warnings
