@@ -1,19 +1,19 @@
 module spi_peripheral(
    //SPI interface
-   input wire COPI, //controller output peripheral in (data)
-   input wire nCS,// chip select (active low = allow the chip to do something)
+   input wire COPI,  //controller output peripheral in (data)
+   input wire nCS, // chip select (active low = allow the chip to do something)
    input wire SCLK, //serial clock
    
    input wire reset,
    
-   input wire clk,//clock for the posedge
+   input wire clk, //clock for the posedge
 
    //SPI register Map
-   output reg[7:0] en_reg_out_7_0,//reset value 0x00 (enable outputs)
-   output reg[7:0] en_reg_out_15_8,//reset value 0x00 (enable outputs)
-   output reg[7:0] en_reg_pwm_7_0,//reset value 0x00(enables PWM)
-   output reg[7:0] en_reg_pwm_15_8,//reset value 0x00 (enables PWM)
-   output reg[7:0] pwm_duty_cycle//reset value 0x00 (PWM duty cycle)
+   output reg[7:0] en_reg_out_7_0, //reset value 0x00 (enable outputs)
+   output reg[7:0] en_reg_out_15_8, //reset value 0x00 (enable outputs)
+   output reg[7:0] en_reg_pwm_7_0, //reset value 0x00(enables PWM)
+   output reg[7:0] en_reg_pwm_15_8, //reset value 0x00 (enables PWM)
+   output reg[7:0] pwm_duty_cycle  //reset value 0x00 (PWM duty cycle)
 );
 
 //synchronization
