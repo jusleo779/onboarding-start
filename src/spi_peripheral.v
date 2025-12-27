@@ -87,7 +87,7 @@ always@(posedge clk or negedge rst_n)begin
         pwm_duty_cycle <= 8'h0;
     end
     else begin
-        if(bit_count == 15 && shift_reg[15] == 1'b1 && rising_edge)begin 
+        if(bit_count == 15 && shift_reg[15] == 1'b1)begin 
             case(shift_reg[14:8])
                 7'h0: en_reg_out_7_0 <= shift_reg[7:0];
                 7'h1: en_reg_out_15_8 <= shift_reg[7:0];
