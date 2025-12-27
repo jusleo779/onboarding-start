@@ -93,14 +93,14 @@ always@(posedge clk or negedge rst_n)begin
     end
     else begin
         if(transaction_ready  && shift_reg[15] == 1'b1 && rising_edge)begin 
-        case(shift_reg[14:8])
-            7'h0: en_reg_out_7_0 <= shift_reg[7:0];
-            7'h1: en_reg_out_15_8 <= shift_reg[7:0];
-            7'h2: en_reg_pwm_7_0 <= shift_reg[7:0];
-            7'h3: en_reg_pwm_15_8 <= shift_reg[7:0];
-            7'h4: pwm_duty_cycle <= shift_reg[7:0];
-            default: ;//empty if there is no correct addresses
-        endcase
+            case(shift_reg[14:8])
+                7'h0: en_reg_out_7_0 <= shift_reg[7:0];
+                7'h1: en_reg_out_15_8 <= shift_reg[7:0];
+                7'h2: en_reg_pwm_7_0 <= shift_reg[7:0];
+                7'h3: en_reg_pwm_15_8 <= shift_reg[7:0];
+                7'h4: pwm_duty_cycle <= shift_reg[7:0];
+                default: ;//empty if there is no correct addresses
+            endcase
         end  
     end
 end
