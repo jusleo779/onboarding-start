@@ -15,20 +15,20 @@ module tt_um_uwasic_onboarding_Justin_Leong(
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
-    assign uio_oe =8'hFF
+    assign uio_oe = 8'hFF;
     wire[7:0] en_reg_out_7_0;
     wire[7:0] en_reg_out_15_8;
     wire[7:0] en_reg_pwm_7_0;
     wire[7:0] en_reg_pwm_15_8;
     wire[7:0] pwm_duty_cycle;
-    
+
     spi_peripheral spi_peripheral_inst(
       .COPI(u_in[1]),
       .nCS(u_in[2]),
       .SCLK(u_in[0]),
       .reset(rst_n),
       .clk(clk),
-      .en_reg_out_7_0(en_reg_out_7_0;), 
+      .en_reg_out_7_0(en_reg_out_7_0), 
       .en_reg_out_15_8(en_reg_out_15_8), 
       .en_reg_pwm_7_0(en_reg_pwm_7_0), 
       .en_reg_pwm_15_8(en_reg_pwm_15_8), 
