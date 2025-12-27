@@ -76,11 +76,11 @@ end
 //shifting the bits into the right address
 always@(posedge clk or negedge reset)begin
     if(!reset)begin
-        en_reg_out_15_8 <= 0'h0;
-        en_reg_out_7_0 <= 0'h0;
-        en_reg_pwm_15_8 <= 0'h0;
-        en_reg_pwm_7_0 <= 0'h0;
-        pwm_duty_cycle <= 0'h0;
+        en_reg_out_15_8 <= 8'h0;
+        en_reg_out_7_0 <= 8'h0;
+        en_reg_pwm_15_8 <= 8'h0;
+        en_reg_pwm_7_0 <= 8'h0;
+        pwm_duty_cycle <= 8'h0;
     end
     else if(bit_count == 15 && shift_reg[15] == 1'b1 && rising_edge)begin 
         case(shift_reg[14:8])
@@ -93,5 +93,6 @@ always@(posedge clk or negedge reset)begin
         endcase
     end  
 end
+
 
 
