@@ -6,8 +6,6 @@
 `default_nettype none
 
 module tt_um_uwasic_onboarding_Justin_Leong(
-   
-    assign uio_oe =8'hFF;
         
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
@@ -17,12 +15,6 @@ module tt_um_uwasic_onboarding_Justin_Leong(
     input  wire       ena,      // always 1 when the design is powered, so you can ignore it
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
-        
-    wire[7:0] en_reg_out_7_0;
-    wire[7:0] en_reg_out_15_8;
-    wire[7:0] en_reg_pwm_7_0;
-    wire[7:0] en_reg_pwm_15_8;
-    wire[7:0] pwm_duty_cycle;
 
     pwm_peripheral pwm_peripheral_inst(
         .clk(clk),
@@ -34,6 +26,12 @@ module tt_um_uwasic_onboarding_Justin_Leong(
         .pwm_duty_cycle(pwm_duty_cycle),
         .out({uio_out, uo_out})
 );
+   assign uio_oe =8'hFF;
+    wire[7:0] en_reg_out_7_0;
+    wire[7:0] en_reg_out_15_8;
+    wire[7:0] en_reg_pwm_7_0;
+    wire[7:0] en_reg_pwm_15_8;
+    wire[7:0] pwm_duty_cycle;
  
   // All output pins must be assigned. If not used, assign to 0.
   assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
