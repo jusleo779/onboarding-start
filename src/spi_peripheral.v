@@ -30,8 +30,8 @@ reg synced_SCLK;
 
 
 always@(posedge clk)begin 
-    //syncing SLCK
-    sync_SCLK <= SLCK;
+    //syncing SCLK
+    sync_SCLK <= SCLK;
     synced_SCLK <= sync_SCLK;
 
     //syncing COPI
@@ -59,14 +59,18 @@ reg [4:0] bit_count;
 reg [15:0] shift_reg;
 
 always@(posedge clk)begin
+    if(!reset)begin
+        bit_count <= 0;
+        shift_reg <= 0; 
+    end
     //when chip is not selected anymore then reset everything
-    if(nCS_sync)begin 
+    else if(nCS_sync)begin 
         bit_count <= 0;
         shift_reg <= 0;  
     end else begin
 
         //shifts the bits to the end
-        if(rising_edge && bit_count < 15)begin
+        if(rising_edge)begin
             shift_reg <= {shift_reg[14:0], copi_sync};
             bit_count <= bit_count + 1;
         end
@@ -94,5 +98,4 @@ always@(posedge clk or negedge reset)begin
     end  
 end
 
-
-
+endmodule
