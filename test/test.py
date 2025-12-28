@@ -245,7 +245,7 @@ async def test_pwm_duty(dut):
     dut._log.info("Test 50% Duty Cycle")
     u_in_val = await send_spi_transaction(dut, 1, 0x04,0x80)
     await ClockCycles(dut.clk, 1000)
-    duty_cycle50 = await dutyCycle(dut.uo_out)
+    duty_cycle50 = await dutyCycle(dut)
     dut._log.info(f"Duty Cycle: {duty_cycle50}%")
     assert 495 <= duty_cycle50 * 10 <= 505,  f"Expected duty cycle 50%, got {duty_cycle50}%"
 
