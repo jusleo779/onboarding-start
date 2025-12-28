@@ -247,7 +247,7 @@ async def test_pwm_duty(dut):
     await ClockCycles(dut.clk, 1000)
     duty_cycle50 = await dutyCycle(dut.uo_out)
     dut._log.info(f"Duty Cycle: {duty_cycle50}%")
-    assert 49.5 <= duty_cycle50 <= 50.5,  f"Expected duty cycle 50%, got {duty_cycle50}%"
+    assert 495 <= duty_cycle50 * 10 <= 505,  f"Expected duty cycle 50%, got {duty_cycle50}%"
 
 #Special Case for 100% duty cycle
     dut._log.info("Test 100% Duty Cycle")
