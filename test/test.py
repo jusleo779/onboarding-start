@@ -213,7 +213,7 @@ async def dutyCycle(dut):
 @cocotb.test()
 async def test_pwm_duty(dut):
     # Write your test here
-     dut._log.info("Start PWM Duty test")
+    dut._log.info("Start PWM Duty test")
 
     clock = Clock(dut.clk, 100, units = "ns")
     cocotb.start_soon(clock.start())
