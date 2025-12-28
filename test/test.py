@@ -149,7 +149,7 @@ async def test_spi(dut):
 
     dut._log.info("SPI test completed successfully")
 
-async def period(dut):
+async def get_period(dut):
     await RisingEdge(dut)
     first_time = cocotb.get_sim_time("ns")
     await RisingEdge(dut)
@@ -186,7 +186,7 @@ async def test_pwm_freq(dut):
 
     u_in_val = await send_spi_transaction(dut, 1, 0x04,0x80) 
     await ClockCycles(dut.clk, 1000)    
-    period = await period(dut)
+    period = await get_period(dut)
 
 
     dut._log.info("Finding Frequency")
