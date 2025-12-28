@@ -10,7 +10,7 @@ from cocotb.types import Logic
 from cocotb.types import LogicArray
 
 async def await_half_sclk(dut):
-    """Wait for the SCLK dutnal to go high or low."""
+    """Wait for the SCLK signal to go high or low."""
     start_time = cocotb.utils.get_sim_time(units="ns")
     while True:
         await ClockCycles(dut.clk, 1)
@@ -150,10 +150,10 @@ async def test_spi(dut):
 
     dut._log.info("SPI test completed successfully")
 
-async def get_period(dut):
-    await RisingEdge(dut)
+async def get_period(sig):
+    await RisingEdge(sig)
     first_time = cocotb.get_sim_time("ns")
-    await RisingEdge(dut)
+    await RisingEdge(sig)
     second_time = cocotb.get_sim_time("ns")
     period = second_time - first_time
     return period
@@ -187,7 +187,7 @@ async def test_pwm_freq(dut):
 
     u_in_val = await send_spi_transaction(dut, 1, 0x04,0x80) 
     await ClockCycles(dut.clk, 1000)    
-    period = await get_period(dut)
+    period = await get_period(dut.uo_out[0])
 
 
     dut._log.info("Finding Frequency")
@@ -198,13 +198,13 @@ async def test_pwm_freq(dut):
     dut._log.info("PWM Frequency test completed successfully")
     
 
-async def dutyCycle(dut):
-    await RisingEdge(dut)
+async def dutyCycle(sig):
+    await RisingEdge(sig)
     t1 = cocotb.get_sim_time("ns")
-    await FallingEdge(dut)
+    await FallingEdge(sig)
     t2 = cocotb.get_sim_time("ns")
     t_high = t2 - t1 #compares rising edge to falling edge
-    await RisingEdge(dut)
+    await RisingEdge(sig)
     t3 = cocotb.get_sim_time("ns")
     period = t3 - t1 #compares rising edge to rising edge
     duty_cycle = (t_high / period) * 100
@@ -246,7 +246,7 @@ async def test_pwm_duty(dut):
     dut._log.info("Test 50% Duty Cycle")
     u_in_val = await send_spi_transaction(dut, 1, 0x04,0x80)
     await ClockCycles(dut.clk, 1000)
-    duty_cycle50 = await dutyCycle(dut)
+    duty_cycle50 = await dutyCycle(dut.uo_out[0])
     dut._log.info(f"Duty Cycle: {duty_cycle50}%")
     assert 495 <= duty_cycle50 * 10 <= 505,  f"Expected duty cycle 50%, got {duty_cycle50}%"
 
