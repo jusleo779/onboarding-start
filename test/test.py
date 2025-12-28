@@ -149,10 +149,10 @@ async def test_spi(dut):
 
     dut._log.info("SPI test completed successfully")
 
-async def get_period(dut.uo_out):
-    await RisingEdge(dut.uo_out)
+async def get_period(sig):
+    await RisingEdge(sig)
     first_time = cocotb.get_sim_time("ns")
-    await RisingEdge(dut.uo_out)
+    await RisingEdge(sig)
     second_time = cocotb.get_sim_time("ns")
     period = second_time - first_time
     return period
@@ -197,13 +197,13 @@ async def test_pwm_freq(dut):
     dut._log.info("PWM Frequency test completed successfully")
     
 
-async def dutyCycle(dut.uo_out):
-    await RisingEdge(dut.uo_out)
+async def dutyCycle(sig):
+    await RisingEdge(sig)
     t1 = cocotb.get_sim_time("ns")
-    await FallingEdge(dut.uo_out)
+    await FallingEdge(sig)
     t2 = cocotb.get_sim_time("ns")
     t_high = t2 - t1 #compares rising edge to falling edge
-    await RisingEdge(dut.uo_out)
+    await RisingEdge(sig)
     t3 = cocotb.get_sim_time("ns")
     period = t3 - t1 #compares rising edge to rising edge
     duty_cycle = (t_high / period) * 100
