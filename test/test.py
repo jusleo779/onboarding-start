@@ -150,10 +150,45 @@ async def test_spi(dut):
 
     dut._log.info("SPI test completed successfully")
 
+
+
+async def RisingEdgeDetection(dut, timeout):
+    start_time = cocotb.get_sim_time("ns")
+    previous_signal = int(dut.uo_out.value)
+    current_signal = int(dut.uo_out.value)
+    time = 0
+    while(True):
+        await ClockCycles(dut.clk, 1)
+        current_signal = int(dut.uo_out.value)
+        if(previous_signal == 0 and current_signal == 1):
+            end_time = cocotb.get_sim_time("ns")
+            return end_time - start_time
+        previous_signal = current_signal 
+        time = cocotb.get_sim_time("ns") - start_time
+        if(time >= timeout):
+            return False
+
+async def FallingEdgeDetection(dut, timeout):
+    start_time = cocotb.get_sim_time("ns")
+    previous_signal = int(dut.uo_out.value)
+    current_signal = int(dut.uo_out.value)
+    time = 0
+    while(True):
+        await ClockCycles(dut.clk, 1)
+        current_signal = int(dut.uo_out.value)
+        if(previous_signal == 1 and current_signal == 0):
+            end_time = cocotb.get_sim_time("ns")
+            return end_time - start_time
+        previous_signal = current_signal 
+        time = cocotb.get_sim_time("ns") - start_time
+        if(time >= timeout):
+            return False
+
+
 async def get_period(dut):
-    await RisingEdge(dut)
+    await RisingEdgeDetection(dut, 1e9)
     first_time = cocotb.get_sim_time("ns")
-    await RisingEdge(dut)
+    await RisingEdgeDetection(dut, 1e9)
     second_time = cocotb.get_sim_time("ns")
     period = second_time - first_time
     return period
@@ -188,7 +223,7 @@ async def test_pwm_freq(dut):
 
     u_in_val = await send_spi_transaction(dut, 1, 0x04,0x80) 
     await ClockCycles(dut.clk, 1000)    
-    period = await get_period(dut.uo_out[0])
+    period = await get_period(dut)
 
 
     dut._log.info("Finding Frequency")
@@ -200,12 +235,12 @@ async def test_pwm_freq(dut):
     
 
 async def dutyCycle():
-    await RisingEdge(dut)
+    await RisingEdgeDetection(dut, 1e9)
     t1 = cocotb.get_sim_time("ns")
-    await FallingEdge(dut)
+    await FallingEdgeDetection(dut, 1e9)
     t2 = cocotb.get_sim_time("ns")
     t_high = t2 - t1 #compares rising edge to falling edge
-    await RisingEdge(dut)
+    await RisingEdgeDetection(dut, 1e9)
     t3 = cocotb.get_sim_time("ns")
     period = t3 - t1 #compares rising edge to rising edge
     duty_cycle = (t_high / period) * 100
@@ -247,7 +282,7 @@ async def test_pwm_duty(dut):
     dut._log.info("Test 50% Duty Cycle")
     u_in_val = await send_spi_transaction(dut, 1, 0x04,0x80)
     await ClockCycles(dut.clk, 1000)
-    duty_cycle50 = await dutyCycle(dut.uo_out[0])
+    duty_cycle50 = await dutyCycle(dut)
     dut._log.info(f"Duty Cycle: {duty_cycle50}%")
     assert 495 <= duty_cycle50 * 10 <= 505,  f"Expected duty cycle 50%, got {duty_cycle50}%"
 
