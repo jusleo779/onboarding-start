@@ -153,7 +153,7 @@ async def test_spi(dut):
 
 
 async def RisingEdgeDetection(dut, timeout):
-    start_time = cocotb.get_sim_time(units = "ns")
+    start_time = cocotb.utils.get_sim_time(units = "ns")
     previous_signal = int(dut.uo_out.value)
     current_signal = int(dut.uo_out.value)
     time = 0
@@ -161,15 +161,15 @@ async def RisingEdgeDetection(dut, timeout):
         await ClockCycles(dut.clk, 1)
         current_signal = int(dut.uo_out.value)
         if(previous_signal == 0 and current_signal == 1):
-            end_time = cocotb.get_sim_time(units = "ns")
+            end_time = cocotb.utils.get_sim_time(units = "ns")
             return end_time - start_time
         previous_signal = current_signal 
-        time = cocotb.get_sim_time(units = "ns") - start_time
+        time = cocotb.utils.get_sim_time(units = "ns") - start_time
         if(time >= timeout):
             return False
 
 async def FallingEdgeDetection(dut, timeout):
-    start_time = cocotb.get_sim_time(units = "ns")
+    start_time = cocotb.utils.get_sim_time(units = "ns")
     previous_signal = int(dut.uo_out.value)
     current_signal = int(dut.uo_out.value)
     time = 0
@@ -177,19 +177,19 @@ async def FallingEdgeDetection(dut, timeout):
         await ClockCycles(dut.clk, 1)
         current_signal = int(dut.uo_out.value)
         if(previous_signal == 1 and current_signal == 0):
-            end_time = cocotb.get_sim_time(units = "ns")
+            end_time = cocotb.utils.get_sim_time(units = "ns")
             return end_time - start_time
         previous_signal = current_signal 
-        time = cocotb.get_sim_time(units = "ns") - start_time
+        time = cocotb.utils.get_sim_time(units = "ns") - start_time
         if(time >= timeout):
             return False
 
 
 async def get_period(dut):
     await RisingEdgeDetection(dut, 1e9)
-    first_time = cocotb.get_sim_time(units = "ns")
+    first_time = cocotb.utils.get_sim_time(units = "ns")
     await RisingEdgeDetection(dut, 1e9)
-    second_time = cocotb.get_sim_time(units = "ns")
+    second_time = cocotb.utils.get_sim_time(units = "ns")
     period = second_time - first_time
     return period
 
@@ -236,12 +236,12 @@ async def test_pwm_freq(dut):
 
 async def dutyCycle(dut):
     await RisingEdgeDetection(dut, 1e9)
-    t1 = cocotb.get_sim_time(units = "ns")
+    t1 = cocotb.utils.get_sim_time(units = "ns")
     await FallingEdgeDetection(dut, 1e9)
-    t2 = cocotb.get_sim_time(units = "ns")
+    t2 = cocotb.utils.get_sim_time(units = "ns")
     t_high = t2 - t1 #compares rising edge to falling edge
     await RisingEdgeDetection(dut, 1e9)
-    t3 = cocotb.get_sim_time(units = "ns")
+    t3 = cocotb.utils.get_sim_time(units = "ns")
     period = t3 - t1 #compares rising edge to rising edge
     duty_cycle = (t_high / period) * 100
     return duty_cycle
