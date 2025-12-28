@@ -149,13 +149,108 @@ async def test_spi(dut):
 
     dut._log.info("SPI test completed successfully")
 
+async def period(dut):
+    await RisingEdge(dut)
+    first_time = cocotb.get_sim_time(units ="ns")
+    await RisingEdge(dut)
+    second_time = cocotb.get_sim_time(units = "ns")
+    period = second_time - first_time
+    return period
+
 @cocotb.test()
 async def test_pwm_freq(dut):
     # Write your test here
+    dut._log.info("Start PWM Frequency test")
+
+    clock = Clock(dut.clk, 100, units = "ns")
+    cocotb.start_soon(clock.start())
+
+    dut._log.info("Reset")
+    dut.ena.value = 1
+    ncs = 1
+    bit = 0
+    sclk = 0
+    dut.ui_in.value = ui_in_logicarray(ncs, bit, sclk)
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 5)
+    dut.rst_n.value = 1
+    await ClockCycles(dut.clk, 5)
+
+    dut._log.info("PWM duty cycle 50%")
+
+    u_in_val = await send_spi_transaction(dut, 1, 0x04,0x80) 
+    await ClockCycles(dut.clk, 1000)    
+    period = await period(dut)
+
+    dut._log.info("Enabling output and PWM")
+
+    u_in_val = await send_spi_transaction(dut, 1, 0x00,0x01) #enables output
+    u_in_val = await send_spi_transaction(dut, 1, 0x02, 0x01)#enables PWM
+    await ClockCycles(dut.clk, 2000)
+
+    dut._log.info("Finding Frequency")
+    frequency = (1 / (period)) * 1000000000   # multiply by 1000000000 to turn it into seconds
+    dut._log.info(f"Frequency found: {frequency}")
+    assert 2970 <= frequency <= 3030, f"Expected a value between 2970 and 3030, got {frequency}"
+
     dut._log.info("PWM Frequency test completed successfully")
+    
+
+async def timeHigh(dut):
+    await RisingEdge(dut)
+    t1 = cocotb.get_sim_time(units = "ns")
+    await FallingEdge(dut)
+    t2 = cocotb.get_sim_time(units = "ns")
+    t_high = t2 - t1
+    return t_high
 
 
 @cocotb.test()
 async def test_pwm_duty(dut):
     # Write your test here
+     dut._log.info("Start PWM Duty test")
+
+    clock = Clock(dut.clk, 100, units = "ns")
+    cocotb.start_soon(clock.start())
+
+    dut._log.info("Reset")
+    dut.ena.value = 1
+    ncs = 1
+    bit = 0
+    sclk = 0
+    dut.ui_in.value = ui_in_logicarray(ncs, bit, sclk)
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 5)
+    dut.rst_n.value = 1
+    await ClockCycles(dut.clk, 5)
+
+    dut._log.info("Enabling output and PWM")
+
+    u_in_val = await send_spi_transaction(dut, 1, 0x00,0x01) #enables output
+    u_in_val = await send_spi_transaction(dut, 1, 0x02, 0x01)#enables PWM
+    await ClockCycles(dut.clk, 2000)
+
+    dut._log.info("Test 0% Duty Cycle")
+    u_in_val = await send_spi_transaction(dut, 1, 0x04,0x00)
+    await ClockCycles(dut.clk, 1000)
+    duty_cycle0 = 0
+    dut._log.info(f"Duty Cycle: {duty_cycle0}%")
+
+    
+    dut._log.info("Test 50% Duty Cycle")
+    u_in_val = await send_spi_transaction(dut, 1, 0x04,0x80)
+    await ClockCycles(dut.clk, 1000)
+    period = await period(dut)
+    t_high = await timeHigh(dut)
+    duty_cycle50 = (t_high / period) * 100
+    dut._log.info(f"Duty Cycle: {duty_cycle50}%")
+    assert 49.5 <= duty_cycle50 <= 50.5,  f"Expected duty cycle 50%, got {duty_cycle50}%"
+
+#Special Case for 100% duty cycle
+    dut._log.info("Test 100% Duty Cycle")
+    u_in_val = await send_spi_transaction(dut, 1, 0x04,0xFF)
+    await ClockCycles(dut.clk, 1000)
+    duty_cycle100 = 100
+    dut._log.info(f"Duty Cycle: {duty_cycle100}%")
+
     dut._log.info("PWM Duty Cycle test completed successfully")
