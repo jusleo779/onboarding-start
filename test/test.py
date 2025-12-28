@@ -151,9 +151,9 @@ async def test_spi(dut):
 
 async def period(dut):
     await RisingEdge(dut)
-    first_time = cocotb.get_sim_time(units ="ns")
+    first_time = cocotb.get_sim_time("ns")
     await RisingEdge(dut)
-    second_time = cocotb.get_sim_time(units = "ns")
+    second_time = cocotb.get_sim_time("ns")
     period = second_time - first_time
     return period
 
@@ -176,17 +176,18 @@ async def test_pwm_freq(dut):
     dut.rst_n.value = 1
     await ClockCycles(dut.clk, 5)
 
-    dut._log.info("PWM duty cycle 50%")
-
-    u_in_val = await send_spi_transaction(dut, 1, 0x04,0x80) 
-    await ClockCycles(dut.clk, 1000)    
-    period = await period(dut)
-
     dut._log.info("Enabling output and PWM")
 
     u_in_val = await send_spi_transaction(dut, 1, 0x00,0x01) #enables output
     u_in_val = await send_spi_transaction(dut, 1, 0x02, 0x01)#enables PWM
     await ClockCycles(dut.clk, 2000)
+
+    dut._log.info("PWM duty cycle 50%")
+
+    u_in_val = await send_spi_transaction(dut, 1, 0x04,0x80) 
+    await ClockCycles(dut.clk, 1000)    
+    period = await period(dut.uo_out)
+
 
     dut._log.info("Finding Frequency")
     frequency = (1 / (period)) * 1000000000   # multiply by 1000000000 to turn it into seconds
@@ -196,13 +197,17 @@ async def test_pwm_freq(dut):
     dut._log.info("PWM Frequency test completed successfully")
     
 
-async def timeHigh(dut):
+async def dutyCycle(dut):
     await RisingEdge(dut)
-    t1 = cocotb.get_sim_time(units = "ns")
+    t1 = cocotb.get_sim_time("ns")
     await FallingEdge(dut)
-    t2 = cocotb.get_sim_time(units = "ns")
-    t_high = t2 - t1
-    return t_high
+    t2 = cocotb.get_sim_time("ns")
+    t_high = t2 - t1 #compares rising edge to falling edge
+    await RisingEdge(dut)
+    t3 = cocotb.get_sim_time("ns")
+    period = t3 - t1 #compares rising edge to rising edge
+    duty_cycle = (t_high / period) * 100
+    return duty_cycle
 
 
 @cocotb.test()
@@ -240,9 +245,7 @@ async def test_pwm_duty(dut):
     dut._log.info("Test 50% Duty Cycle")
     u_in_val = await send_spi_transaction(dut, 1, 0x04,0x80)
     await ClockCycles(dut.clk, 1000)
-    period = await period(dut)
-    t_high = await timeHigh(dut)
-    duty_cycle50 = (t_high / period) * 100
+    duty_cycle50 = await dutyCycle(dut.uo_out)
     dut._log.info(f"Duty Cycle: {duty_cycle50}%")
     assert 49.5 <= duty_cycle50 <= 50.5,  f"Expected duty cycle 50%, got {duty_cycle50}%"
 
