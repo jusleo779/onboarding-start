@@ -9,12 +9,14 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-The project is an SPI module that has multiple always statements that has clocks. The first always statement creates synchronization between the information/data, allowing for all the data to be the same between the different statements. The next always statement is the important section that actually makes it an SPI module. Firstly, there is the edge detection, which tells the chip when to increase the bit count of the data we are trying to save when the chip is selected. When the chip isn't selected then nothing happens and just resets all the values if the chip was partially done. When the chip gets all the data of 16 bits. It will then check which address it should go to and move into the right address through a case statement.
+The SPI module captures 16-bit transactions from a controller using synchronized flip-flops to prevent metastability. Data is sampled on the rising edge of SCLK, while a bit counter tracks how many bits have been received. Transactions are only processed when the chip is selected (nCS low); partial data is cleared if the chip is deselected before completion. Once a full 16-bit transaction is received, the module decodes the address from the data and writes the data to the corresponding register if writing is allowed, ensuring reliable and accurate SPI-controlled updates to the outputs.
 
 ## How to test
 
-,Explain how to use your project.
+The project is tested using Cocotb test benches, focusing on verifying the PWM module’s frequency and duty cycle. A pre-made helper function, send_spi_transaction, is used to initiate SPI transactions and write data to the PWM registers.
+
+To measure the PWM signals, I implemented rising edge detection and falling edge detection modules. These compare the current signal value with the previous value to detect edges. By recording the times of rising and falling edges, the testbench calculates the time period of the PWM signal, which is then used to compute the frequency and duty cycle. This approach ensures accurate verification of the PWM behavior for different duty cycle values and output configurations
 
 ## External hardware
 
-,List external hardware used in your project (e.g. PMOD, LED display, etc), if any.
+No external hardware was used in this project
