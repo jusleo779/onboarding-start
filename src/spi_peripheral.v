@@ -70,8 +70,8 @@ always@(posedge clk or negedge rst_n)begin
         bit_count <= 4'b0;
         shift_reg <= 8'b0;  
         transaction_complete <= 1'b0;  
-    end else begin
-
+    end 
+   else begin
         //shifts the bits to the end
         if(rising_edge)begin
             shift_reg <= {shift_reg[14:0], copi_sync};
